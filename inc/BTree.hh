@@ -1,4 +1,4 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 #include <graphviz/cgraph.h>
 #include <graphviz/gvc.h>
 using namespace std;
@@ -221,21 +221,22 @@ public:
       son_remove(nnd, key);
     }
   }
-  friend void dumpToFile(const string& path = "cache.png", const string& type = "png") {
+  void dumpToFile(const string& path = "cache.png", const string& type = "png") {
     Agraph_t* g = agopen("BTree", Agdirected, nullptr);
-    Agnode_t* agroot = agnode(g, "root", 1);
     GVC_t* gvc = gvContext();
 
-    function<void(Node* ptr)> dfs = [&](Agnode_t* agfa, Node* ptr) {
+    function<void(Agnode_t*, Node*)> dfs = [&](Agnode_t* agfa, Node* ptr) {
       if (ptr == nullptr) return;
       Agnode_t* cur = agnode(g, nullptr, 1);
       if (agfa != nullptr) agedge(g, agfa, cur, nullptr, 1);
       agsafeset(cur, "shape", "record", "");
-      istringstream iss;
-      for (const auto& v : ptr->val)
-        iss << " " << v;
-      iss << " ";
-      agsafeset(cur, "label", iss.str(), "");
+      ostringstream oss;
+      for (int i = 0; i < ptr->count; ++i) {
+        oss << " " << ptr->val[i];
+      }
+      oss << " ";
+      // cout << oss.str() << endl;
+      agsafeset(cur, "label", oss.str().c_str(), "");
       if (ptr->isleaf) return;
       for (auto each : ptr->son)
         dfs(cur, each);
@@ -250,19 +251,25 @@ public:
   }
 };
 
-// int main() {
+template<typename T>
+void treeDemo(BTree<T>& tr, int n, int m, const vector<T>& arr) {
+  for (const auto& x : arr)
+    tr.insert(x);
+  tr.dumpToFile();
+}
+
+// signed main() {
+//   ios_base::sync_with_stdio(false);
 //   int n, m;
 //   cin >> n >> m;
-//   BTree <int> tr(m);
+//   vector<int> arr;
 //   for (int i = 0; i < n; i++) {
-//     int a;
-//     cin >> a;
-//     if (cin.bad()) {
-//       cout << "ERROR!" << endl;
-//       continue;
-//     }
+//     int a; cin >> a;
 //     char ch;
-//     while (~(ch = cin.get()) && ch != ',') {}
-//     tr.insert(a);
+//     while (~(ch = cin.get()) && ch != ',' && ch != '\n' && ch != '\r') {}
+//     arr.push_back(a);
 //   }
+//   BTree<int> tr(m);
+//   treeDemo(tr, n, m, arr);
+//   tr.dumpToFile();
 // }
