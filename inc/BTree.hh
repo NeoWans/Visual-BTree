@@ -1,9 +1,11 @@
 #include<bits/stdc++.h>
+#include <graphviz/cgraph.h>
+#include <graphviz/gvc.h>
 using namespace std;
 template <class T>
-class B_tree {
+class BTree {
 public:
-  B_tree(int _order) {
+  BTree(int _order) {
     root = nullptr;
     order = _order;
     Key_max = 2 * order - 1;
@@ -11,7 +13,7 @@ public:
     Child_max = Key_max + 1;
     Child_min = Key_min + 1;
   }
-  ~B_tree() {
+  ~BTree() {
     clear(root);
   }
   bool remove(const T& key) {
@@ -219,12 +221,39 @@ public:
       son_remove(nnd, key);
     }
   }
+  friend void dumpToFile(const string& path = "cache.png", const string& type = "png") {
+    Agraph_t* g = agopen("BTree", Agdirected, nullptr);
+    Agnode_t* agroot = agnode(g, "root", 1);
+    GVC_t* gvc = gvContext();
+
+    function<void(Node* ptr)> dfs = [&](Agnode_t* agfa, Node* ptr) {
+      if (ptr == nullptr) return;
+      Agnode_t* cur = agnode(g, nullptr, 1);
+      if (agfa != nullptr) agedge(g, agfa, cur, nullptr, 1);
+      agsafeset(cur, "shape", "record", "");
+      istringstream iss;
+      for (const auto& v : ptr->val)
+        iss << " " << v;
+      iss << " ";
+      agsafeset(cur, "label", iss.str(), "");
+      if (ptr->isleaf) return;
+      for (auto each : ptr->son)
+        dfs(cur, each);
+    };
+    dfs(nullptr, root);
+    gvLayout(gvc, g, "dot");
+    // TODO
+    // 不知道能不能不通过磁盘直出到Qt
+    gvRenderFilename(gvc, g, type.c_str(), path.c_str());
+    gvFreeLayout(gvc, g);
+    agclose(g);
+  }
 };
 
 // int main() {
 //   int n, m;
 //   cin >> n >> m;
-//   B_tree <int> tr(m);
+//   BTree <int> tr(m);
 //   for (int i = 0; i < n; i++) {
 //     int a;
 //     cin >> a;
