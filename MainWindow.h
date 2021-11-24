@@ -8,6 +8,7 @@
 #include <QPainter>
 #include <QComboBox>
 #include <QPushButton>
+#include <QTextEdit>
 #include <memory>
 #include <vector>
 #include <string>
@@ -25,6 +26,7 @@ public:
   ~MainWindow();
   template<typename T> void dumpBTree(const BTree<T>& tr);
   void operateBTree(int op);
+  void procInput(const string& str);
 
 private:
   Ui::MainWindow* ui;
@@ -34,6 +36,7 @@ private:
   unique_ptr<QComboBox> operationMenu;
   unique_ptr<QPushButton> submitButton;
   unique_ptr<BTree<int>> btree;
+  unique_ptr<QTextEdit> input;
   static const vector<string> operationStr;
 
 protected:

@@ -24,11 +24,15 @@ MainWindow::MainWindow(QWidget* parent)
     this->operationMenu->addItem(str.c_str());
   this->submitButton = unique_ptr<QPushButton>(new QPushButton(this));
   this->submitButton->setText("提交");
-  auto btnSiz = this->submitButton->size();
-  this->submitButton->setGeometry(200, 200, btnSiz.width(), btnSiz.height());
   this->btree = nullptr;
   connect(this->operationMenu.get(), static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
     this, static_cast<void(MainWindow::*)(int)>(&MainWindow::operateBTree));
+  this->input = unique_ptr<QTextEdit>(new QTextEdit(this));
+  this->input->setText("");
+  connect(this->submitButton.get(), &QPushButton::clicked, this, [&]() { procInput((this->input->toPlainText()).toStdString()); });
+  this->input->setGeometry(0, 0, 600, 600);
+  this->operationMenu->setGeometry(600, 0, 200, 100);
+  this->submitButton->setGeometry(600, 100, 200, 100);
 }
 
 MainWindow::~MainWindow() {
@@ -41,6 +45,11 @@ void MainWindow::dumpBTree(const BTree<T>& btree) {
   this->pixmap->load("BTree.png");
   this->label->setPixmap(*(this->pixmap));
   this->subWindow->show();
+}
+
+void MainWindow::procInput(const string& str) {
+  cout << "MainWindow::procInput(const string& str)" << endl;
+  cout << str << endl;
 }
 
 void MainWindow::operateBTree(int op) {
