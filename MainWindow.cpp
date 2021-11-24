@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget* parent)
   this->input->setText("");
   connect(this->submitButton.get(), &QPushButton::clicked, this, [&]() {
     procInput(this->operationMenu->currentIndex(), (this->input->toPlainText()).toStdString());
-    dumpBTree(*this->btree);
+    if (this->btree != nullptr) dumpBTree(*this->btree);
     });
   this->input->setGeometry(0, 0, 600, 600);
   this->operationMenu->setGeometry(600, 0, 200, 100);
