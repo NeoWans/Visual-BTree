@@ -19,6 +19,12 @@ MainWindow::MainWindow(QWidget* parent)
   this->pixmap->fill(Qt::white);
   this->label->setPixmap(*(this->pixmap));
   this->subWindow->show();
+  this->operationMenu = unique_ptr<QComboBox>(new QComboBox(this));
+  this->operationMenu->addItem("清空");
+  this->operationMenu->addItem("插入");
+  this->operationMenu->addItem("删除");
+  this->submitButton = unique_ptr<QPushButton>(new QPushButton(this));
+  this->submitButton->setText("提交");
 }
 
 MainWindow::~MainWindow() {

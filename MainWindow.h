@@ -6,6 +6,8 @@
 #include <QLabel>
 #include <QPixmap>
 #include <QPainter>
+#include <QComboBox>
+#include <QPushButton>
 #include <memory>
 #include "BTree.hh"
 
@@ -26,6 +28,8 @@ private:
   unique_ptr<QMainWindow> subWindow;
   unique_ptr<QLabel> label;
   unique_ptr<QPixmap> pixmap;
+  unique_ptr<QComboBox> operationMenu;
+  unique_ptr<QPushButton> submitButton;
 
 protected:
   // virtual void mousePressEvent(QMouseEvent* event);
