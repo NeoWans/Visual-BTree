@@ -1,4 +1,8 @@
-#include <bits/stdc++.h>
+#pragma once
+#include <iostream>
+#include <vector>
+#include <string>
+#include <sstream>
 #include <graphviz/cgraph.h>
 #include <graphviz/gvc.h>
 using namespace std;
