@@ -5,8 +5,8 @@
 #include <QLabel>
 #include <QPixmap>
 #include <QPainter>
-
 #include <memory>
+#include "BTree.hh"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -18,11 +18,13 @@ class MainWindow : public QMainWindow {
 public:
   MainWindow(QWidget* parent = nullptr);
   ~MainWindow();
+  template<typename T>
+  void dumpBTree(const BTree<T>& tr);
 
 private:
   Ui::MainWindow* ui;
   unique_ptr<QLabel> label;
   unique_ptr<QPixmap> pixmap;
-  unique_ptr<QPainter> painter;
+  // unique_ptr<QPainter> painter;
 };
 #endif // MAINWINDOW_H

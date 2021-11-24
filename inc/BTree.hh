@@ -221,7 +221,7 @@ public:
       son_remove(nnd, key);
     }
   }
-  void dumpToFile(const string& path = "cache.png", const string& type = "png") {
+  void dumpToFile(const string& path = "cache.png", const string& type = "png") const {
     Agraph_t* g = agopen("BTree", Agdirected, nullptr);
     GVC_t* gvc = gvContext();
 
@@ -243,8 +243,6 @@ public:
     };
     dfs(nullptr, root);
     gvLayout(gvc, g, "dot");
-    // TODO
-    // 不知道能不能不通过磁盘直出到Qt
     gvRenderFilename(gvc, g, type.c_str(), path.c_str());
     gvFreeLayout(gvc, g);
     agclose(g);
