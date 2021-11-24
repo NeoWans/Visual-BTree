@@ -9,10 +9,12 @@ MainWindow::MainWindow(QWidget* parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow) {
   ui->setupUi(this);
-  this->setFixedSize(800, 600);
-  this->setWindowTitle("可视化B树");
+  this->setGeometry(5, 200, 0, 0);
+  this->setFixedSize(300, 500);
+  this->setWindowTitle("B树 输入");
   QSize subWindowSize(1600, 900);
   this->subWindow = unique_ptr<QMainWindow>(new QMainWindow(nullptr));
+  this->subWindow->setGeometry(310, 0, 0, 0);
   this->subWindow->setFixedSize(subWindowSize);
   this->subWindow->setWindowTitle("可视化树形");
   this->subWindow->setWindowFlags(Qt::SubWindow);
@@ -35,9 +37,9 @@ MainWindow::MainWindow(QWidget* parent)
     procInput(this->operationMenu->currentIndex(), (this->input->toPlainText()).toStdString());
     dumpBTree(this->btree.get());
     });
-  this->input->setGeometry(0, 0, 600, 600);
-  this->operationMenu->setGeometry(600, 0, 200, 100);
-  this->submitButton->setGeometry(600, 100, 200, 100);
+  this->input->setGeometry(0, 0, 300, 450);
+  this->operationMenu->setGeometry(10, 460, 135, 30);
+  this->submitButton->setGeometry(155, 460, 135, 30);
 }
 
 MainWindow::~MainWindow() {
