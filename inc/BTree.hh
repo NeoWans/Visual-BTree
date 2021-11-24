@@ -242,7 +242,7 @@ public:
       }
       oss << " ";
       // cout << oss.str() << endl;
-      agsafeset(cur, "label", oss.str().c_str(), "");
+      agsafeset(cur, "label", const_cast<char*>(oss.str().c_str()), "");
       if (ptr->isleaf) return;
       for (auto each : ptr->son)
         dfs(cur, each);
