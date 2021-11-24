@@ -27,6 +27,8 @@ private:
   unique_ptr<QMainWindow> subWindow;
   unique_ptr<QLabel> label;
   unique_ptr<QPixmap> pixmap;
-  // unique_ptr<QPainter> painter;
+
+protected:
+  virtual void mousePressEvent(QMouseEvent* event);
 };
 #endif // MAINWINDOW_H
