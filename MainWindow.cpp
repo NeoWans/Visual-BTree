@@ -1,6 +1,6 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
-
+const vector<string> MainWindow::operationStr = {"构造", "清空", "插入", "删除"};
 MainWindow::MainWindow(QWidget* parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow) {
@@ -20,11 +20,15 @@ MainWindow::MainWindow(QWidget* parent)
   this->label->setPixmap(*(this->pixmap));
   this->subWindow->show();
   this->operationMenu = unique_ptr<QComboBox>(new QComboBox(this));
-  this->operationMenu->addItem("清空");
-  this->operationMenu->addItem("插入");
-  this->operationMenu->addItem("删除");
+  for (const auto& str : this->operationStr)
+    this->operationMenu->addItem(str.c_str());
   this->submitButton = unique_ptr<QPushButton>(new QPushButton(this));
   this->submitButton->setText("提交");
+  auto btnSiz = this->submitButton->size();
+  this->submitButton->setGeometry(200, 200, btnSiz.width(), btnSiz.height());
+  this->btree = nullptr;
+  connect(this->operationMenu.get(), static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    this, static_cast<void(MainWindow::*)(int)>(&MainWindow::operateBTree));
 }
 
 MainWindow::~MainWindow() {
@@ -32,9 +36,14 @@ MainWindow::~MainWindow() {
 }
 
 template<typename T>
-void MainWindow::dumpBTree(const BTree<T>& tr) {
-  tr.dumpToFile();
+void MainWindow::dumpBTree(const BTree<T>& btree) {
+  btree.dumpToFile();
   this->pixmap->load("BTree.png");
   this->label->setPixmap(*(this->pixmap));
   this->subWindow->show();
+}
+
+void MainWindow::operateBTree(int op) {
+  cout << "MainWindow::operateBTree(int op)" << endl;
+  cout << op << ": " << this->operationStr[op] << endl;
 }

@@ -9,6 +9,8 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <memory>
+#include <vector>
+#include <string>
 #include "BTree.hh"
 
 QT_BEGIN_NAMESPACE
@@ -22,6 +24,7 @@ public:
   MainWindow(QWidget* parent = nullptr);
   ~MainWindow();
   template<typename T> void dumpBTree(const BTree<T>& tr);
+  void operateBTree(int op);
 
 private:
   Ui::MainWindow* ui;
@@ -30,6 +33,8 @@ private:
   unique_ptr<QPixmap> pixmap;
   unique_ptr<QComboBox> operationMenu;
   unique_ptr<QPushButton> submitButton;
+  unique_ptr<BTree<int>> btree;
+  static const vector<string> operationStr;
 
 protected:
   // virtual void mousePressEvent(QMouseEvent* event);
