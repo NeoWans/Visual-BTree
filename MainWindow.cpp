@@ -22,6 +22,6 @@ MainWindow::~MainWindow() {
 template<typename T>
 void MainWindow::dumpBTree(const BTree<T>& tr) {
   tr.dumpToFile();
-  this->pixmap->load("cache.png");
+  this->pixmap->load("BTree.png");
   this->label->setPixmap(*(this->pixmap));
 }

@@ -221,7 +221,7 @@ public:
       son_remove(nnd, key);
     }
   }
-  void dumpToFile(const string& path = "cache.png", const string& type = "png") const {
+  void dumpToFile(const string& path = "BTree.png", const string& type = "png") const {
     Agraph_t* g = agopen("BTree", Agdirected, nullptr);
     GVC_t* gvc = gvContext();
 
