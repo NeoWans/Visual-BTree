@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QWidget>
 #include <QLabel>
 #include <QPixmap>
 #include <QPainter>
@@ -23,6 +24,7 @@ public:
 
 private:
   Ui::MainWindow* ui;
+  unique_ptr<QWidget> subWindow;
   unique_ptr<QLabel> label;
   unique_ptr<QPixmap> pixmap;
   // unique_ptr<QPainter> painter;
