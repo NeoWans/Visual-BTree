@@ -24,7 +24,7 @@ class MainWindow : public QMainWindow {
 public:
   MainWindow(QWidget* parent = nullptr);
   ~MainWindow();
-  template<typename T> void dumpBTree(const BTree<T>& tr);
+  template<typename T> void dumpBTree(BTree<T>* btree);
   void operateBTree(int op);
   void procInput(int op, const string& str);
 

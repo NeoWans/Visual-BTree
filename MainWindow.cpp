@@ -25,13 +25,11 @@ MainWindow::MainWindow(QWidget* parent)
   this->submitButton = unique_ptr<QPushButton>(new QPushButton(this));
   this->submitButton->setText("提交");
   this->btree = nullptr;
-  // connect(this->operationMenu.get(), static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-  //   this, static_cast<void(MainWindow::*)(int)>(&MainWindow::operateBTree));
   this->input = unique_ptr<QTextEdit>(new QTextEdit(this));
   this->input->setText("");
   connect(this->submitButton.get(), &QPushButton::clicked, this, [&]() {
     procInput(this->operationMenu->currentIndex(), (this->input->toPlainText()).toStdString());
-    if (this->btree != nullptr) dumpBTree(*this->btree);
+    dumpBTree(this->btree.get());
     });
   this->input->setGeometry(0, 0, 600, 600);
   this->operationMenu->setGeometry(600, 0, 200, 100);
@@ -43,9 +41,12 @@ MainWindow::~MainWindow() {
 }
 
 template<typename T>
-void MainWindow::dumpBTree(const BTree<T>& btree) {
-  btree.dumpToFile();
-  this->pixmap->load("BTree.png");
+void MainWindow::dumpBTree(BTree<T>* btree) {
+  if (btree == nullptr) this->pixmap->fill(Qt::white);
+  else {
+    btree->dumpToFile();
+    this->pixmap->load("BTree.png");
+  }
   this->label->setPixmap(*(this->pixmap));
   this->subWindow->show();
 }
