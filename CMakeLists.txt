@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(Visual-BTree VERSION 0.1 LANGUAGES CXX)
 
+list(APPEND CMAKE_PREFIX_PATH "/opt/Qt5.12.11/5.12.11/gcc_64")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(CMAKE_AUTOUIC ON)
