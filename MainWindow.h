@@ -19,8 +19,7 @@ class MainWindow : public QMainWindow {
 public:
   MainWindow(QWidget* parent = nullptr);
   ~MainWindow();
-  template<typename T>
-  void dumpBTree(const BTree<T>& tr);
+  template<typename T> void dumpBTree(const BTree<T>& tr);
 
 private:
   Ui::MainWindow* ui;
@@ -29,6 +28,6 @@ private:
   unique_ptr<QPixmap> pixmap;
 
 protected:
-  virtual void mousePressEvent(QMouseEvent* event);
+  // virtual void mousePressEvent(QMouseEvent* event);
 };
 #endif // MAINWINDOW_H

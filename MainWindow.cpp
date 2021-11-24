@@ -1,6 +1,5 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
-#include <random>
 
 MainWindow::MainWindow(QWidget* parent)
   : QMainWindow(parent)
@@ -13,15 +12,13 @@ MainWindow::MainWindow(QWidget* parent)
   this->subWindow->setFixedSize(subWindowSize);
   this->subWindow->setWindowTitle("可视化树形");
   this->subWindow->setWindowFlags(Qt::SubWindow);
-  this->subWindow->show();
   this->label = unique_ptr<QLabel>(new QLabel(this->subWindow.get()));
-  // this->label = unique_ptr<QLabel>(new QLabel(this));
   this->label->setFixedSize(subWindowSize);
+  this->label->setScaledContents(true);
   this->pixmap = unique_ptr<QPixmap>(new QPixmap(subWindowSize));
   this->pixmap->fill(Qt::white);
   this->label->setPixmap(*(this->pixmap));
-  random_device rd;
-  srand(rd());
+  this->subWindow->show();
 }
 
 MainWindow::~MainWindow() {
@@ -34,13 +31,4 @@ void MainWindow::dumpBTree(const BTree<T>& tr) {
   this->pixmap->load("BTree.png");
   this->label->setPixmap(*(this->pixmap));
   this->subWindow->show();
-}
-
-void MainWindow::mousePressEvent(QMouseEvent* event) {
-  cout << "MainWindow mousePressEvent" << endl;
-  enum Qt::GlobalColor color;
-  if (rand() & 1) color = Qt::GlobalColor::black;
-  else color = Qt::GlobalColor::white;
-  this->pixmap->fill(color);
-  this->label->setPixmap(*(this->pixmap));
 }
