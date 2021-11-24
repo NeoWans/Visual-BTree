@@ -25,7 +25,6 @@ public:
   MainWindow(QWidget* parent = nullptr);
   ~MainWindow();
   template<typename T> void dumpBTree(BTree<T>* btree);
-  void operateBTree(int op);
   void procInput(int op, const string& str);
 
 private:

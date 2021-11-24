@@ -1,3 +1,7 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <sstream>
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 const vector<string> MainWindow::operationStr = {"构造", "清空", "插入", "删除"};
@@ -52,11 +56,33 @@ void MainWindow::dumpBTree(BTree<T>* btree) {
 }
 
 void MainWindow::procInput(int op, const string& str) {
-  cout << "MainWindow::procInput(int op, const string& str)" << endl;
-  cout << op << " " << str << endl;
-}
-
-void MainWindow::operateBTree(int op) {
-  cout << "MainWindow::operateBTree(int op)" << endl;
-  cout << op << ": " << this->operationStr[op] << endl;
+  // cout << "MainWindow::procInput(int op, const string& str)" << endl;
+  // cout << op << " " << str << endl;
+  istringstream iss(str);
+  switch (op) {
+  case 0: {
+    int m; iss >> m;
+    this->btree = unique_ptr<BTree<int>>(new BTree<int>(m));
+    goto BTREE_INSERT;
+    break;
+  }
+  case 1: {
+    this->btree.reset();
+    break;
+  }
+  case 2: {
+BTREE_INSERT:
+    int x;
+    while (iss >> x)
+      this->btree->insert(x);
+    break;
+  }
+  case 3: {
+    int x;
+    while (iss >> x)
+      this->btree->remove(x);
+    break;
+  }
+  default: break;
+  }
 }
