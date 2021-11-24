@@ -26,7 +26,7 @@ public:
   ~MainWindow();
   template<typename T> void dumpBTree(const BTree<T>& tr);
   void operateBTree(int op);
-  void procInput(const string& str);
+  void procInput(int op, const string& str);
 
 private:
   Ui::MainWindow* ui;
