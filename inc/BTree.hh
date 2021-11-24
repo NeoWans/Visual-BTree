@@ -19,12 +19,14 @@ public:
   }
   ~BTree() {
     clear(root);
+    root = nullptr;
   }
   bool remove(const T& key) {
     if (!find(root, key)) return 0;
     if (root->count == 1) {
       if (root->isleaf) {
-        clear();
+        clear(root);
+        root = nullptr;
         return 1;
       } else {
         auto s1 = root->son[0];
