@@ -24,7 +24,7 @@ public:
 
 private:
   Ui::MainWindow* ui;
-  unique_ptr<QWidget> subWindow;
+  unique_ptr<QMainWindow> subWindow;
   unique_ptr<QLabel> label;
   unique_ptr<QPixmap> pixmap;
   // unique_ptr<QPainter> painter;

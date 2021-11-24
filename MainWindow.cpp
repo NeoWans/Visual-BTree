@@ -6,8 +6,10 @@ MainWindow::MainWindow(QWidget* parent)
   , ui(new Ui::MainWindow) {
   ui->setupUi(this);
   this->setFixedSize(800, 600);
-  this->subWindow = unique_ptr<QWidget>(new QWidget(this));
+  this->setWindowTitle("可视化B树");
+  this->subWindow = unique_ptr<QMainWindow>(new QMainWindow(this));
   this->subWindow->setFixedSize(1600, 900);
+  this->subWindow->setWindowTitle("可视化树形");
   this->subWindow->show();
   this->label = unique_ptr<QLabel>(new QLabel(this->subWindow.get()));
   this->label->setFixedSize(this->subWindow->size());
