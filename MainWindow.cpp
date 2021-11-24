@@ -72,15 +72,17 @@ void MainWindow::procInput(int op, const string& str) {
   }
   case 2: {
 BTREE_INSERT:
+    if (this->btree == nullptr) break;
     int x;
     while (iss >> x)
       this->btree->insert(x);
     break;
   }
   case 3: {
-    int x;
-    while (iss >> x)
-      this->btree->remove(x);
+    if (this->btree == nullptr) break;
+    // int x;
+    // while (iss >> x)
+    //   this->btree->remove(x);
     break;
   }
   default: break;
