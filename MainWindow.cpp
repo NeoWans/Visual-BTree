@@ -58,8 +58,6 @@ void MainWindow::dumpBTree(BTree<T>* btree) {
 }
 
 void MainWindow::procInput(int op, const string& str) {
-  // cout << "MainWindow::procInput(int op, const string& str)" << endl;
-  // cout << op << " " << str << endl;
   istringstream iss(str);
   switch (op) {
   case 0: {

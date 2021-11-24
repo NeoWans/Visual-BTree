@@ -261,19 +261,3 @@ void treeDemo(BTree<T>& tr, int n, int m, const vector<T>& arr) {
     tr.insert(x);
   tr.dumpToFile();
 }
-
-// signed main() {
-//   ios_base::sync_with_stdio(false);
-//   int n, m;
-//   cin >> n >> m;
-//   vector<int> arr;
-//   for (int i = 0; i < n; i++) {
-//     int a; cin >> a;
-//     char ch;
-//     while (~(ch = cin.get()) && ch != ',' && ch != '\n' && ch != '\r') {}
-//     arr.push_back(a);
-//   }
-//   BTree<int> tr(m);
-//   treeDemo(tr, n, m, arr);
-//   tr.dumpToFile();
-// }
