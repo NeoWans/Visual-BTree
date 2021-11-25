@@ -80,9 +80,9 @@ BTREE_INSERT:
   }
   case 3: {
     if (this->btree == nullptr) break;
-    // int x;
-    // while (iss >> x)
-    //   this->btree->remove(x);
+    int x;
+    while (iss >> x)
+      this->btree->erase(x);
     break;
   }
   default: break;
