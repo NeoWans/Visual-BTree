@@ -339,7 +339,7 @@ void BTree<T>::printRoot() {
 template<typename T>
 void BTree<T>::printTree() {
   if (!root) {
-    cout << "����~" << endl;
+    cout << "Empty!" << endl;
     return;
   }
   queue<BNode<T>*>q;
@@ -398,7 +398,7 @@ void BTree<T>::GetDFS(BNode<T>* p, int d, int* dep, int* tab, map<T, int>& mp, i
 template<typename T>
 void BTree<T>::printWholeTree() {
   if (!root) {
-    cout << "����" << endl << endl;
+    cout << "Empty!" << endl;
     return;
   }
   int* dep = new int[this->height() + 1]();
