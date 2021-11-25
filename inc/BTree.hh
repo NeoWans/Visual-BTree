@@ -1,263 +1,438 @@
 #pragma once
-#include <iostream>
-#include <vector>
-#include <string>
-#include <sstream>
+#include "BNode.hh"
+#include <bits/stdc++.h>
 #include <graphviz/cgraph.h>
 #include <graphviz/gvc.h>
 using namespace std;
-template <class T>
+template<typename T>
 class BTree {
 public:
-  BTree(int _order) {
-    root = nullptr;
-    order = _order;
-    Key_max = 2 * order - 1;
-    Key_min = order - 1;
-    Child_max = Key_max + 1;
-    Child_min = Key_min + 1;
-  }
-  ~BTree() {
-    clear(root);
-    root = nullptr;
-  }
-  bool remove(const T& key) {
-    if (!find(root, key)) return 0;
-    if (root->count == 1) {
-      if (root->isleaf) {
-        clear(root);
-        root = nullptr;
-        return 1;
-      } else {
-        auto s1 = root->son[0];
-        auto s2 = root->son[1];
-        if (s1->count == Key_min && s2->count == Key_min) {
-          merge(root, 0);
-          deletenode(root);
-          root = s1;
-        }
-      }
+  BNode <T>* root;
+  int k;
+  int minKey, maxKey;
+  int nsize;
+  void maintainAfterInsert(BNode<T>*);
+  void maintainAfterErase(BNode<T>*);
+  void mergeNode(BNode<T>*, BNode<T>*, T, bool flag);
+  void deleteNode(BNode<T>*);
+  void print(BNode<T>*);
+  BNode<T>* splitLeftNode(BNode<T>*, int);
+  BNode<T>* splitRightNode(BNode<T>*, int);
+  BNode<T>* findBrotherNode(BNode<T>*, T&, bool flag);
+  BNode<T>* findNode(T);
+  BTree();
+  ~BTree();
+  BTree(int k);
+  bool insert(T data);
+  bool erase(T key);
+  void printRoot();
+  void printArray();
+  void printTree();
+  void printWholeTree();
+  BNode<T>* findNextNode(BNode<T>* p, T, T&);
+  BNode<T>* findPreNode(BNode<T>* p, T, T&);
+  int size();
+  int height();
+  BNode<T>* getRoot();
+  int getLen(int);
+  void GetDFS(BNode<T>* p, int d, int* dep, int* tab, map<T, int>& mp, int& cnt);
+  void dumpToFile(const string& path = "BTree.png", const string& type = "png") const;
+};
+template<typename T>
+void BTree<T>::dumpToFile(const string& path, const string& type) const {
+  Agraph_t* g = agopen("BTree", Agdirected, nullptr);
+  GVC_t* gvc = gvContext();
+
+  function<void(Agnode_t*, BNode<T>*)> dfs = [&](Agnode_t* agfa, BNode<T>* ptr) {
+    if (ptr == nullptr) return;
+    Agnode_t* cur = agnode(g, nullptr, 1);
+    if (agfa != nullptr) agedge(g, agfa, cur, nullptr, 1);
+    agsafeset(cur, "shape", "record", "");
+    ostringstream oss;
+    for (const auto& key : ptr->keys) {
+      oss << " " << key;
     }
-    son_remove(root, key);
+    oss << " ";
+    agsafeset(cur, "label", const_cast<char*>(oss.str().c_str()), "");
+    if (ptr->isLeaf()) return;
+    for (auto each : ptr->child)
+      dfs(cur, each);
+  };
+  dfs(nullptr, root);
+  gvLayout(gvc, g, "dot");
+  gvRenderFilename(gvc, g, type.c_str(), path.c_str());
+  gvFreeLayout(gvc, g);
+  agclose(g);
+}
+template<typename T>
+bool BTree<T>::insert(T key) {
+  BNode<T>* p = root;
+  if (root == NULL) {
+    root = new BNode<T>(key);
+    nsize++;
     return 1;
   }
-
-  int order, Key_max, Key_min, Child_max, Child_min;
-  struct Node {
-    int count;
-    bool isleaf;
-    vector <T> val;
-    vector <Node*> son;
-    Node(int Child_max, int Key_max, bool t = 1, int num = 0) :
-      count(num), isleaf(t) {
-      son.resize(Child_max + 2);
-      val.resize(Key_max + 1);
-    }
-  };
-  Node* root;
-  bool insert(const T& key) {
-    if (find(root, key)) {
-      return 0;
-    } else {
-      if (root == nullptr) {
-        root = new Node(Child_max, Key_max);
-      }
-      if (root->count == Key_max) {
-        auto nd = new Node(Child_max, Key_max);
-        nd->isleaf = 0;
-        nd->son[0] = root;
-        split(nd, 0, root);
-        root = nd;
-      }
-      insertNonfull(root, key);
-      return 1;
-    }
+  while (!p->isLeaf()) {
+    if (p->hasKey(key))return false;
+    p = p->next(key);
   }
-
-  void clear(Node* nd) {
-    if (nd != nullptr) {
-      if (!nd->isleaf)
-        for (int i = 0; i < nd->count; i++)
-          clear(nd->son[i]);
-      delete nd;
-    }
-  }
-  bool find(Node* nd, const T& key) {
-    if (nd == nullptr)   return 0;
-    int pos = 0;
-    while (pos < nd->count && key > nd->val[pos])    pos++;
-    if (pos < nd->count && key == nd->val[pos])  return 1;
-    if (nd->isleaf)    return 0;
-    else return find(nd->son[pos], key);
-  }
-  void split(Node* pa, int sindex, Node* nd) {
-    auto rs = new Node(Child_max, Key_max);
-    rs->isleaf = nd->isleaf;
-    rs->count = Key_min;
-    for (int i = 0; i < Key_min; i++) {
-      rs->val[i] = nd->val[i + Child_min];
-    }
-    if (!nd->isleaf) {
-      for (int i = 0; i < Child_min; i++) {
-        rs->son[i] = nd->son[i + Child_min];
-      }
-    }
-
-    nd->count = Key_min;
-    for (int i = pa->count; i > sindex; i--) {
-      pa->son[i + 1] = pa->son[i];
-      pa->val[i] = pa->val[i - 1];
-    }
-    pa->count++;
-    pa->son[sindex + 1] = rs;
-    pa->val[sindex] = nd->val[Key_min];
-  }
-  void insertNonfull(Node* nd, const T& key) {
-    int num = nd->count;
-    if (nd->isleaf) {
-      while (num && key < nd->val[num - 1]) {
-        nd->val[num] = nd->val[num - 1];
-        num--;
-      }
-      nd->val[num] = key;
-      nd->count++;
-    } else {
-      while (num && key < nd->val[num - 1])  num--;
-      auto nnd = nd->son[num];
-      if (nnd->count == Key_max) {
-        split(nd, num, nnd);
-        if (key > nd->val[num])
-          nnd = nd->son[num + 1];
-      }
-      insertNonfull(nnd, key);
-    }
-  }
-  void merge(Node* nd, int index) {
-    auto s1 = nd->son[index];
-    auto s2 = nd->son[index + 1];
-    s1->count = Key_max;
-    s1->val[Key_min] = nd->val[index];
-    for (int i = 0; i < Key_min; i++)
-      s1->val[i + Key_min + 1] = s2->val[i];
-    if (!s1->isleaf) {
-      for (int i = 0; i < Child_min; i++)
-        s1->son[i + Child_min] = s2->son[i];
-    }
-
-    nd->count--;
-    for (int i = index; i <= nd->count; i++) {
-      nd->val[i] = nd->val[i + 1];
-      nd->son[i + 1] = nd->son[i + 2];
-    }
-    deletenode(s2);
-  }
-  T getprev(Node* nd) {
-    while (!nd->isleaf)
-      nd = nd->son[nd->count];
-    return nd->val[nd->count - 1];
-  }
-  T getnxtv(Node* nd) {
-    while (!nd->isleaf)
-      nd = nd->son[0];
-    return nd->val[0];
-  }
-  void son_remove(Node* nd, const T& key) {
-    int num = 0;
-    while (num < nd->count && key > nd->val[num])    num++;
-    if (num < nd->count && key == nd->val[num]) {
-      if (nd->isleaf) {
-        nd->count--;
-        for (; num < nd->count; num++)
-          nd->val[num] = nd->val[num + 1];
-        return;
-      } else {
-        auto pre = nd->son[num];
-        auto nxt = nd->son[num + 1];
-        if (pre->count >= Child_min) {
-          T prekey = getprev(pre);
-          son_remove(pre, prekey);
-          nd->val[num] = prekey;
-          return;
-        } else if (nxt->count >= Child_min) {
-          T nxtkey = getnxtv(nxt);
-          son_remove(nxt, nxtkey);
-          nd->val[num] = nxtkey;
-          return;
-        } else {
-          merge(nd, num);
-          son_remove(pre, key);
-        }
-      }
-    } else {
-      auto nnd = nd->son[num];
-      if (nnd->count == Key_min) {
-        auto ls = num ? nd->son[num - 1] : nullptr;
-        auto rs = num < nd->count ? nd->son[num + 1] : nullptr;
-        if (ls && ls->count >= Child_min) {
-          for (int j = nnd->count; j; j--)
-            nnd->val[j] = nd->val[j - 1];
-          nnd->val[0] = nd->val[num - 1];
-          if (!ls->isleaf) {
-            for (int j = nnd->count + 1; j; j--)
-              nnd->son[j] = nnd->son[j - 1];
-            nnd->son[0] = ls->son[ls->count];
-          }
-          nnd->count++;
-          nd->val[num] = ls->val[ls->count - 1];
-          ls->count--;
-        } else if (rs && rs->count >= Child_min) {
-          nnd->val[nnd->count] = nd->val[num];
-          nnd->count++;
-          nd->val[num] = rs->val[0];
-          rs->count--;
-          for (int j = 0; j < rs->count; j++)
-            rs->val[j] = rs->val[j + 1];
-          if (!rs->isleaf) {
-            nnd->son[nnd->count] = rs->son[0];
-            for (int j = 0; j <= rs->count; j++)
-              rs->son[j] = rs->son[j + 1];
-          }
-        } else if (ls) {
-          merge(nd, num - 1);
-          nnd = ls;
-        } else if (rs) {
-          merge(nd, num);
-        }
-      }
-      son_remove(nnd, key);
-    }
-  }
-  void dumpToFile(const string& path = "BTree.png", const string& type = "png") const {
-    Agraph_t* g = agopen("BTree", Agdirected, nullptr);
-    GVC_t* gvc = gvContext();
-
-    function<void(Agnode_t*, Node*)> dfs = [&](Agnode_t* agfa, Node* ptr) {
-      if (ptr == nullptr) return;
-      Agnode_t* cur = agnode(g, nullptr, 1);
-      if (agfa != nullptr) agedge(g, agfa, cur, nullptr, 1);
-      agsafeset(cur, "shape", "record", "");
-      ostringstream oss;
-      for (int i = 0; i < ptr->count; ++i) {
-        oss << " " << ptr->val[i];
-      }
-      oss << " ";
-      // cout << oss.str() << endl;
-      agsafeset(cur, "label", const_cast<char*>(oss.str().c_str()), "");
-      if (ptr->isleaf) return;
-      for (auto each : ptr->son)
-        dfs(cur, each);
-    };
-    dfs(nullptr, root);
-    gvLayout(gvc, g, "dot");
-    gvRenderFilename(gvc, g, type.c_str(), path.c_str());
-    gvFreeLayout(gvc, g);
-    agclose(g);
-  }
-};
-
+  if (p->hasKey(key))return false;
+  p->insertKey(key, NULL, NULL);
+  maintainAfterInsert(p);
+  nsize++;
+  return 1;
+}
 template<typename T>
-void treeDemo(BTree<T>& tr, int n, int m, const vector<T>& arr) {
-  for (const auto& x : arr)
-    tr.insert(x);
-  tr.dumpToFile();
+bool BTree<T>::erase(T key) {
+  BNode<T>* p = findNode(key);
+  if (!p)return false;
+  if (!p->isLeaf()) {
+    T next_key;
+    BNode<T>* next_node = findNextNode(p, key, next_key);
+    p->replace(key, next_key);
+    key = next_key;
+    p = next_node;
+  }
+  p->eraseKey(key);
+  p->eraseChild(NULL);
+  this->maintainAfterErase(p);
+  nsize--;
+  return true;
+}
+template<typename T>
+void BTree<T>::maintainAfterErase(BNode<T>* p) {
+  BNode<T>* fa = p->fa;
+  if (p == root) {
+    if (p->size() == 0) {
+      root = *(root->child.begin());
+      if (root) root->fa = NULL;
+    }
+    return;
+  }
+  if (p->size() >= minKey)return;
+  T father_key;
+  BNode<T>* brother_node;
+  brother_node = findBrotherNode(p, father_key, 0);
+  if (brother_node)mergeNode(p, brother_node, father_key, 0);
+  else {
+    brother_node = findBrotherNode(p, father_key, 1);
+    mergeNode(p, brother_node, father_key, 1);
+  }
+  this->maintainAfterErase(fa);
+}
+template<typename T>
+void BTree<T>::mergeNode(BNode<T>* p1, BNode<T>* p2, T father_key, bool flag) {
+  BNode<T>* fa = p1->fa;
+  if (p2->size() > minKey) {
+    int replace_key = flag ? *(p2->keys.begin()) : *(p2->keys.rbegin());
+    BNode<T>* replace_child = flag ? *(p2->child.begin()) : *(p2->child.rbegin());
+    p2->eraseKey(replace_key);
+    p2->eraseChild(replace_child);
+    fa->replace(father_key, replace_key);
+    if (flag == 0) {
+      p1->keys.push_front(father_key);
+      p1->child.push_front(replace_child);
+    } else {
+      p1->keys.push_back(father_key);
+      p1->child.push_back(replace_child);
+    }
+    p1->updateChild();
+  } else {
+    fa->eraseKey(father_key);
+    fa->eraseChild(p1);
+    if (flag == 0) {
+      p2->keys.push_back(father_key);
+      p2->keys.splice(p2->keys.end(), p1->keys);
+      p2->child.splice(p2->child.end(), p1->child);
+    } else {
+      p2->keys.push_front(father_key);
+      p2->keys.splice(p2->keys.begin(), p1->keys);
+      p2->child.splice(p2->child.begin(), p1->child);
+    }
+    fa->updateChild();
+    p2->updateChild();
+    delete p1;
+  }
+}
+template<typename T>
+BNode<T>* BTree<T>::findBrotherNode(BNode<T>* p, T& key, bool flag) {
+  BNode<T>* fa = p->fa;
+  typename std::list<T>::iterator it_key = fa->keys.begin();
+  typename std::list<BNode<T>*>::iterator it_child = fa->child.begin();
+  while (*it_child != p) {
+    it_child++; it_key++;
+  }
+  if (flag == 0) {
+    if (it_child == fa->child.begin())return NULL;
+    key = *(--it_key);
+    return *(--it_child);
+  } else {
+    if ((++it_child) == fa->child.end())return NULL;
+    key = *it_key;
+    return  *it_child;
+  }
+}
+template<typename T>
+BNode<T>* BTree<T>::findNextNode(BNode<T>* p, T key, T& next_key) {
+  if (!p)return NULL;
+  typename std::list<T>::iterator it_key;
+  typename std::list<BNode<T>*>::iterator it_child;
+  do {
+    it_key = p->keys.begin();
+    it_child = p->child.begin();
+    while (it_key != p->keys.end()) {
+      if (key < *it_key)break;
+      it_child++; it_key++;
+    }
+    if (it_key != p->keys.end())next_key = *it_key;
+    if (*it_child == NULL)
+      return p;
+  } while (p = *it_child);
+  return NULL;
+}
+template<typename T>
+BNode<T>* BTree<T>::findPreNode(BNode<T>* p, T key, T& pre_key) {
+  if (!p)return NULL;
+  typename std::list<T>::reverse_iterator it_key;
+  typename std::list<BNode<T>*>::reverse_iterator it_child;
+  do {
+    it_key = p->keys.rbegin();
+    it_child = p->child.rbegin();
+    while (it_key != p->keys.rend()) {
+      if (*it_key < key)break;
+      it_child++; it_key++;
+    }
+    if (it_key != p->keys.rend())pre_key = *it_key;
+    if (*it_child == NULL)
+      return p;
+  } while (p = *it_child);
+}
+template<typename T>
+BNode<T>* BTree<T>::findNode(T key) {
+  BNode<T>* p = root;
+  while (p && !(p->hasKey(key))) {
+    p = p->next(key);
+  }
+  return p;
+}
+template<typename T>
+void BTree<T>::maintainAfterInsert(BNode<T>* p) {
+  while (p->size() >= k) {
+    BNode<T>* left_node = splitLeftNode(p, (k - 1) / 2);
+    BNode<T>* right_node = splitRightNode(p, k - (k - 1) / 2 - 1);
+    T key = p->getKey((k - 1) / 2);
+    delete p;
+    p = left_node->fa;
+    if (!p) {
+      root = p = new BNode<T>();
+      left_node->fa = right_node->fa = root;
+    }
+    p->insertKey(key, left_node, right_node);
+  }
+}
+template<typename T>
+BNode<T>* BTree<T>::splitLeftNode(BNode<T>* p, int pos) {
+  BNode<T>* node = new BNode<T>();
+  node->fa = p->fa;
+  typename std::list<T>::iterator it_key = p->keys.begin();
+  typename std::list<BNode<T>*>::iterator it_child = p->child.begin();
+  node->child.push_back(*it_child);
+  int i = 0;
+  while (i++ < pos) {
+    it_child++;
+    node->keys.push_back(*it_key);
+    node->child.push_back(*it_child);
+    it_key++;
+  }
+  node->updateChild();
+  return node;
+}
+template<typename T>
+BNode<T>* BTree<T>::splitRightNode(BNode<T>* p, int pos) {
+  BNode<T>* node = new BNode<T>();
+  node->fa = p->fa;
+  typename std::list<T>::reverse_iterator it_key = p->keys.rbegin();
+  typename std::list<BNode<T>*>::reverse_iterator it_child = p->child.rbegin();
+  node->child.push_front(*it_child);
+  int i = 0;
+  while (i++ < pos) {
+    it_child++;
+    node->keys.push_front(*it_key);
+    node->child.push_front(*it_child);
+    it_key++;
+  }
+  node->updateChild();
+  return node;
+}
+template <typename T>
+int BTree<T>::size() {
+  return nsize;
+}
+template<typename T>
+int BTree<T>::height() {
+  int i = 0;
+  BNode<T>* p = root;
+  while (p) {
+    p = *(p->child.begin());
+    ++i;
+  }
+  return i;
+}
+template<typename T>
+BNode<T>* BTree<T>::getRoot() {
+  return this->root;
+}
+template<typename T>
+void BTree<T>::deleteNode(BNode<T>* p) {
+  if (!p)return;
+  typename std::list<BNode<T>*>::iterator it;
+  for (it = p->child.begin(); it != p->child.end(); it++) {
+    deleteNode(*it);
+  }
+  delete p;
+}
+template <typename T>
+BTree<T>::BTree() {
+  k = 3;
+  nsize = 0;
+  maxKey = k - 1;
+  minKey = (k - 1) / 2;
+  root = NULL;
+}
+template<typename T>
+BTree<T>::BTree(int k) :k(k) {
+  nsize = 0;
+  maxKey = k - 1;
+  minKey = (k - 1) / 2;
+  root = NULL;
+}
+template<typename T>
+void BTree<T>::printArray() {
+  print(root);
+  cout << endl;
+}
+template<typename T>
+void BTree<T>::print(BNode<T>* p) {
+  if (p == NULL)return;
+  typename std::list<T>::iterator it_key = p->keys.begin();
+  typename std::list<BNode<T>*>::iterator it_child = p->child.begin();
+  print(*it_child);
+  for (it_child++; it_child != p->child.end(); it_child++, it_key++) {
+    cout << *it_key << ' ';
+    print(*it_child);
+  }
+}
+template<typename T>
+void BTree<T>::printRoot() {
+  if (!root)return;
+  root->print();
+  cout << endl;
+}
+template<typename T>
+void BTree<T>::printTree() {
+  if (!root) {
+    cout << "����~" << endl;
+    return;
+  }
+  queue<BNode<T>*>q;
+  set<BNode<T>*>s; s.clear(); s.insert(root);
+  q.push(root);
+  while (!q.empty()) {
+    BNode<T>* p = q.front(); q.pop();
+    cout << '|'; p->print(); cout << '|';
+    if (p->isLeaf())continue;
+    typename std::list<BNode<T>*>::iterator it;
+    for (it = p->child.begin(); it != p->child.end(); it++) {
+      q.push(*it);
+    }
+    if (s.find(p) != s.end()) {
+      s.insert((*p->child.rbegin()));
+      cout << endl;
+    }
+  }
+  cout << endl << endl;
+}
+template<typename T>
+int BTree<T>::getLen(int x) {
+  int cnt = 0;
+  while (x) {
+    cnt++; x /= 10;
+  }
+  return cnt;
+  return 0;
+}
+template<typename T>
+void BTree<T>::GetDFS(BNode<T>* p, int d, int* dep, int* tab, map<T, int>& mp, int& cnt) {
+  ++cnt;
+  int n = cnt;
+  typename std::list<T>::iterator it_key = p->keys.begin();
+  typename std::list<BNode<T>*>::iterator it_child = p->child.begin();
+  mp[*it_key] = cnt;
+  int x = 0;
+  if (*it_child != NULL) {
+    for (; it_child != p->child.end(); it_child++) {
+      if (*it_child == NULL)break;
+      GetDFS(*it_child, d + 1, dep, tab, mp, cnt);
+      BNode<T>* q = *it_child;
+      int num = mp[*q->keys.begin()];
+      x += tab[num];
+    }
+    x /= p->child.size();
+    tab[n] = x;
+  } else {
+    tab[n] = dep[d];
+  }
+  for (; it_key != p->keys.end(); it_key++) {
+    dep[d] += 1 + getLen(int(*it_key));
+  }
+  dep[d] += 2;
+}
+template<typename T>
+void BTree<T>::printWholeTree() {
+  if (!root) {
+    cout << "����" << endl << endl;
+    return;
+  }
+  int* dep = new int[this->height() + 1]();
+  int* tab = new int[this->size() + 1]();
+  map<T, int> mp;
+  int cnt = 0;
+  GetDFS(root, 1, dep, tab, mp, cnt);
+  queue<BNode<T>*>q;
+  set<BNode<T>*>s; s.clear();
+  s.insert(root);
+  q.push(root);
+  int space = 0;
+  while (!q.empty()) {
+    BNode<T>* p = q.front();
+    q.pop();
+    int n = mp[*p->keys.begin()];
+    for (int i = 1; i <= tab[n] - space; ++i)cout << ' ';
+    space = tab[n];
+    typename std::list<T>::iterator it_key = p->keys.begin();
+    for (; it_key != p->keys.end(); it_key++) {
+      if (it_key == p->keys.begin())cout << '|' << *it_key;
+      else cout << " " << *it_key;
+      space += 1 + getLen(int(*it_key));
+    }
+    cout << '|';
+    space++;
+    if (p->isLeaf())continue;
+    typename std::list<BNode<T>*>::iterator it;
+    for (it = p->child.begin(); it != p->child.end(); it++) {
+      q.push(*it);
+    }
+    if (s.find(p) != s.end()) {
+      s.insert((*p->child.rbegin()));
+      cout << endl;
+      space = 0;
+    }
+  }
+  cout << endl << endl;
+  delete[]dep;
+  delete[]tab;
+}
+template<typename T>
+BTree<T>::~BTree() {
+  deleteNode(root);
 }
