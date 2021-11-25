@@ -1,6 +1,14 @@
 #pragma once
 #include "BNode.hh"
-#include <bits/stdc++.h>
+#include <list>
+#include <queue>
+#include <set>
+#include <map>
+#include <vector>
+#include <algorithm>
+#include <iostream>
+#include <functional>
+#include <sstream>
 #include <graphviz/cgraph.h>
 #include <graphviz/gvc.h>
 using namespace std;
