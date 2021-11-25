@@ -308,7 +308,7 @@ BTree<T>::BTree() {
   root = NULL;
 }
 template<typename T>
-BTree<T>::BTree(int k) :k(k) {
+BTree<T>::BTree(int k) : k(k) {
   nsize = 0;
   maxKey = k - 1;
   minKey = (k - 1) / 2;
