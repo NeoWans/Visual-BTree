@@ -15,7 +15,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
 include_directories(inc)
-add_library(btree SHARED src/BNode.cc src/BTree.cc)
+add_library(visual-btree SHARED src/BNode.cc src/BTree.cc)
 set(PROJECT_SOURCES
     main.cpp
     MainWindow.cpp
@@ -44,7 +44,7 @@ else()
     )
   endif()
 endif()
-target_link_libraries(Visual-BTree PRIVATE Qt${QT_VERSION_MAJOR}::Widgets btree gvc cgraph cdt)
+target_link_libraries(Visual-BTree PRIVATE Qt${QT_VERSION_MAJOR}::Widgets visual-btree gvc cgraph cdt)
 set_target_properties(Visual-BTree PROPERTIES
   MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
   MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
